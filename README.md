@@ -47,16 +47,57 @@ Read-TrackMetadataSingle -FilePath "C:\Music\song.mp3"
 
 **Description:**  
 Updates standard and custom metadata fields on an audio file.
+You can specify commonly used tags as individual parameters (e.g., -Title, -Artist, -Album, etc.) or provide them in a hashtable via -Metadata.
+If both are provided, individual parameters take precedence.
 
 **Parameters:**
 - `-FilePath <string>`: Path to the audio file.
 - `-Metadata <hashtable>`: Standard metadata fields to update (e.g., Title, Artist, Album).
 - `-CustomFields <hashtable>`: Custom fields (TXXX frames) to add or update.
+- `-FilePath <string>`: Path to the audio file.
+- `-Metadata <hashtable>`: Standard metadata fields to update (e.g., Title, Artist, Album).
+- `-CustomFields <hashtable>`: Custom fields (TXXX frames) to add or update.
+- `-Title <string>`: The title of the track.
+- `-Artist <string>`: The artist name.
+- `-Album <string>`: The album name.
+- `-AlbumArtist <string>`: The album artist name.
+- `-Genre <string>`: The genre of the track.
+- `-Composer <string>`: The composer name.
+- `-Publisher <string>`: The publisher name.
+- `-TrackNumber <string>`: The track number (format: "5" or "5/12" for track/total).
+- `-Year <string>`: The year of release.
+- `-Comments <string>`: Comments for the track.
+- `-ISRC <string>`: The ISRC code.
+- `-Subtitle <string>`: The subtitle or mix/version.
 
-**Example:**
+
+**Example (using individual parameters):**
 ```powershell
-Set-TrackMetadata -FilePath "C:\Music\song.mp3" -Metadata @{Title="New Title"} -CustomFields @{MyTag="Custom Value"}
+Set-TrackMetadata -FilePath "C:\Music\song.mp3" -Title "New Title" -Artist "New Artist" -Album "New Album" -Year 2026
 ```
+
+**Example (using hashtable):**
+```powershell
+Set-TrackMetadata -FilePath "C:\Music\song.mp3" -Metadata @{Title="New Title"; Artist="New Artist"}
+```
+
+**Example (combining both):**
+```powershell
+Set-TrackMetadata -FilePath "C:\Music\song.mp3" -Metadata @{Title="Old Title"; Artist="Old Artist"} -Title "New Title"
+```
+**Example (using standard and custom tags):**
+```powershell
+Set-TrackMetadata -FilePath "C:\Music\song.mp3" `
+    -Title "My Song" `
+    -Artist "My Artist" `
+    -Album "My Album" `
+    -CustomFields @{
+        'CATALOG_NUMBER' = 'ABC-123'
+        'DJ_COMMENT'     = 'For club use only'
+        'MY_CUSTOM_TAG'  = 'Any value you want'
+    }
+```
+
 
 ---
 
