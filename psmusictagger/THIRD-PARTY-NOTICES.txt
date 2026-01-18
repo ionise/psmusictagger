@@ -1,0 +1,80 @@
+THIRD-PARTY NOTICES
+===================
+
+This software distribution includes third‑party components governed by
+their own licenses. The notices below are provided to satisfy the
+redistribution requirements of those licenses.
+
+-------------------------------------------------------------------------------
+1. TagLib# (taglib-sharp) — Version 2.3.0.0
+-------------------------------------------------------------------------------
+
+Name: TagLib# (aka Taglib‑sharp)
+Version: 2.3.0.0
+Upstream Project: https://github.com/mono/taglib-sharp/tree/TaglibSharp-2.3.0.0
+License: GNU Lesser General Public License v2.1 (LGPL‑2.1)
+License File: COPYING (LGPL‑2.1) in the upstream repository
+
+TagLib# is a .NET library for reading and writing metadata in media files,
+including audio, video, and images. [1](https://github.com/mono/taglib-sharp)
+
+This module redistributes the following library file:
+
+    lib\TagLibSharp.dll
+
+Copyright © The TagLib# Contributors.
+All rights reserved by their respective copyright holders.
+
+The TagLib# library is licensed under the GNU Lesser General Public License
+Version 2.1. A verbatim copy of this license is provided as:
+
+    LICENSES\LGPL-2.1.txt
+
+As required by LGPL‑2.1:
+
+1. **Preservation of Notices**  
+   All copyright, attribution, and license notices from TagLib# are
+   preserved in this distribution. [2](https://github.com/mono/taglib-sharp/blob/main/COPYING)
+
+2. **Reverse Engineering and Relinking Rights**  
+   Users are permitted to reverse engineer this module as necessary to
+   debug or relink the included LGPL‑licensed library, in accordance with
+   the rights granted under LGPL‑2.1. [2](https://github.com/mono/taglib-sharp/blob/main/COPYING)
+
+3. **Right to Replace the Library**  
+   Users may replace `lib\TagLibSharp.dll` with a modified version of the
+   TagLib# library, provided it is ABI‑compatible, satisfying the LGPL
+   requirement to allow replacement of the library. [2](https://github.com/mono/taglib-sharp/blob/main/COPYING)
+
+4. **Corresponding Source Code**  
+   The complete corresponding source code for TagLib# version 2.3.0.0 is
+   available at:
+
+       https://github.com/mono/taglib-sharp/tree/TaglibSharp-2.3.0.0  [1](https://github.com/mono/taglib-sharp)
+
+   If you received this module without the corresponding source, you may
+   retrieve it from the link above or request it using the contact
+   information below. This offer is valid for at least three years from
+   the date you obtained this software, as required by LGPL‑2.1. [2](https://github.com/mono/taglib-sharp/blob/main/COPYING)
+
+-------------------------------------------------------------------------------
+2. No Modifications Made to TagLib#
+-------------------------------------------------------------------------------
+
+The redistributed DLL is an **unmodified build** of TagLibSharp‑2.3.0.0.
+No changes have been applied to the TagLib# source code by this project.
+
+-------------------------------------------------------------------------------
+3. Contact Information
+-------------------------------------------------------------------------------
+
+For questions regarding redistribution of third‑party components included in
+this module, please contact:
+
+    David Alderman / Module Maintainer
+    https://github.com/ionise/psmusictagger
+    https://github.com/ionise/psmusictagger/issues
+
+-------------------------------------------------------------------------------
+END OF THIRD-PARTY NOTICES
+-------------------------------------------------------------------------------

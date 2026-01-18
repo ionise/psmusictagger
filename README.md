@@ -1,5 +1,5 @@
 # psmusictagger
-A PowerShell Wrapper for reading metadata from audio tracks using TagLibSharp https://github.com/mono/taglib-sharp
+A PowerShell Wrapper for reading metadata from audio tracks using [TagLibSharp Version 2.3.0]
 
 # Information about this module
 
@@ -274,3 +274,26 @@ Get-TrackArtwork -FilePath "C:\Music\song.mp3" -All | Export-TrackArtwork -Sourc
 > **Note:**  
 > Helper functions (such as `Get-Id3Text`, `Get-Id3Txxx`, etc.) are not intended for direct use and are not documented here.  
 > All user functions support verbose output for troubleshooting and transparency.
+
+---
+
+## Third-Party Licenses and Attribution
+
+### TagLibSharp
+
+This module uses [TagLibSharp](https://github.com/mono/taglib-sharp), a .NET library for reading and writing metadata in media files.
+
+**Third-party component:** TagLibSharp v2.3.0  
+**Copyright:** © 2006-2007 Brian Nickel, © 2009-2020 Other Contributors  
+**License:** LGPL-2.1
+
+The corresponding source code for TagLibSharp used in this module is available at:  
+[https://github.com/mono/taglib-sharp/releases/tag/TagLibSharp-2.3.0](https://github.com/mono/taglib-sharp/releases/tag/TagLibSharp-2.3.0)
+
+This module redistributes `lib\TagLibSharp.dll` under the terms of the LGPL-2.1. You may replace this DLL with a compatible, modified version of TagLibSharp, and you are permitted to reverse engineer this module as necessary to debug and relink TagLibSharp, as required by LGPL-2.1.
+
+See `LICENSES\LGPL-2.1.txt` and `THIRD-PARTY-NOTICES.txt` for full license details.
+
+---
+
+## License
