@@ -5,14 +5,26 @@
     Builds the psmusictagger module by obtaining TagLibSharp and updating module files.
 
 .DESCRIPTION
-    - Clones and builds TagLibSharp from source
+    - Optionally clones and builds TagLibSharp from source (with -Full parameter)
     - Copies the DLL to the module lib folder
     - Updates the module manifest (.psd1) with incremented version and exported functions
     - Updates the module file (.psm1) with exported functions
 
+.PARAMETER Full
+    If specified, clones and builds TagLibSharp from source. Otherwise, only updates the module manifest and module file.
+
 .EXAMPLE
     ./build.ps1
+    Updates only the module manifest and module file.
+
+.EXAMPLE
+    ./build.ps1 -Full
+    Builds TagLibSharp from source and updates all module files.
 #>
+
+param(
+    [switch]$Full
+)
 
 Set-Location $PSScriptRoot
 
@@ -24,30 +36,41 @@ $ManifestPath = Join-Path -Path $ModulePath -ChildPath "psmusictagger.psd1"
 $ModuleFilePath = Join-Path -Path $ModulePath -ChildPath "psmusictagger.psm1"
 $FunctionsPath = Join-Path -Path $ModulePath -ChildPath "functions"
 
-# -------------------------
-# Build TagLibSharp
-# -------------------------
-Write-Host "Building TagLibSharp..." -ForegroundColor Cyan
+# TagLibSharp version tag
+$TagLibVersion = "main"
 
-If (-not (Test-Path -Path $DestinationPath)) {
-    New-Item -Path $DestinationPath -ItemType Directory | Out-Null
+# -------------------------
+# Build TagLibSharp (only with -Full)
+# -------------------------
+if ($Full) {
+    Write-Host "Building TagLibSharp ($TagLibVersion)..." -ForegroundColor Cyan
+
+    If (-not (Test-Path -Path $DestinationPath)) {
+        New-Item -Path $DestinationPath -ItemType Directory | Out-Null
+    } else {
+        Write-Verbose "Lib folder already exists at $DestinationPath" -Verbose
+        If (Test-Path -Path $TargetLibPath) {
+            Remove-Item -Path $TargetLibPath -Force
+        }
+    }
+
+    git clone --branch $TagLibVersion --depth 1 https://github.com/mono/taglib-sharp.git
+    Set-Location .\taglib-sharp
+    dotnet build ./src/TagLibSharp/TaglibSharp.csproj -c Release
+    $TaglibPath = (Get-ChildItem -Path .\src\TagLibSharp\bin\Release\netstandard2.0\TagLibSharp.dll).FullName
+
+    Copy-Item -Path $TaglibPath -Destination $TargetLibPath -Force
+    Set-Location $PSScriptRoot
+    Remove-Item -Path .\taglib-sharp -Recurse -Force
+
+    Write-Host "TagLibSharp ($TagLibVersion) built and copied to $TargetLibPath" -ForegroundColor Green
 } else {
-    Write-Verbose "Lib folder already exists at $DestinationPath" -Verbose
-    If (Test-Path -Path $TargetLibPath) {
-        Remove-Item -Path $TargetLibPath -Force
+    Write-Host "Skipping TagLibSharp build (use -Full to build from source)" -ForegroundColor Yellow
+    
+    if (-not (Test-Path -Path $TargetLibPath)) {
+        Write-Warning "TagLibSharp.dll not found at $TargetLibPath. Run with -Full to build it."
     }
 }
-
-git clone https://github.com/mono/taglib-sharp.git
-Set-Location .\taglib-sharp
-dotnet build ./src/TagLibSharp/TaglibSharp.csproj -c Release
-$TaglibPath = (Get-ChildItem -Path .\src\TagLibSharp\bin\Release\netstandard2.0\TagLibSharp.dll).FullName
-
-Copy-Item -Path $TaglibPath -Destination $TargetLibPath -Force
-Set-Location $PSScriptRoot
-Remove-Item -Path .\taglib-sharp -Recurse -Force
-
-Write-Host "TagLibSharp built and copied to $TargetLibPath" -ForegroundColor Green
 
 # -------------------------
 # Get exported functions
@@ -137,7 +160,11 @@ Write-Host "`n========================================" -ForegroundColor Cyan
 Write-Host "Build complete!" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "Module version: $NewVersion"
-Write-Host "TagLibSharp:    $TargetLibPath"
+if ($Full) {
+    Write-Host "TagLibSharp:    $TargetLibPath ($TagLibVersion)"
+} else {
+    Write-Host "TagLibSharp:    Skipped (use -Full to build)"
+}
 Write-Host "Manifest:       $ManifestPath"
 Write-Host "Module file:    $ModuleFilePath"
 Write-Host "Functions:      $($PublicFunctions.Count) exported"
