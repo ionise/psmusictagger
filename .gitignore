@@ -1,2 +1,9 @@
 README.md
 scratch.ps1
+# Ignore all image files
+*.jpg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.webp

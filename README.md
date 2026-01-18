@@ -3,6 +3,8 @@ A PowerShell Wrapper for reading metadata from audio tracks using TagLibSharp ht
 
 # Information about this module
 
+This module was written from scratch in a long weekend to fulfil some music tagging operations I was performing on a large number of tracks. It is based on some earlier scripts I created which leveraged external ffmpeg executable installed on the computer but I wanted to make a module that was stand alone without requiring any external depdendancies to be installed.
+
 ## User-Accessible Functions
 
 ### Get-TrackMetadata
@@ -11,17 +13,20 @@ A PowerShell Wrapper for reading metadata from audio tracks using TagLibSharp ht
 Scans a directory (or a single file) for audio tracks and returns metadata for each track as a PowerShell object. Supports parallel processing for faster batch operations.
 
 **Parameters:**
+
 - `-SourcePath <string>`: Path to a directory or file to scan.
 - `-Filter <string>`: File filter (e.g., `*.mp3`, `*.aiff`).
 - `-Parallel`: If specified, processes files in parallel.
 - `-Verbose`: Shows detailed processing information.
 
 **Example:**
+
 ```powershell
 Get-TrackMetadata -SourcePath "C:\Music" -Filter "*.mp3" -Parallel
 ```
 
 **Example:**
+
 ```powershell
 Get-TrackMetadata -FilePath "C:\Music\MyTune.mp3" 
 ```
@@ -138,6 +143,131 @@ Removes a custom user-defined text field (TXXX frame) from the ID3v2 tag of an a
 ```powershell
 Remove-CustomTag -FilePath "C:\Music\song.mp3" -Description "MYTAG"
 ```
+
+
+### Get-TrackArtwork
+
+**Description:**  
+Extracts embedded artwork (pictures) from an audio track. Returns pictures matching the specified type(s), or all pictures if `-All` is specified. Accepts either a file path or a `TagLib.File` object from the pipeline.
+
+**Parameters:**
+- `-FilePath <string>`: Path to the audio file.
+- `-TagLibFile <TagLib.File>`: A TagLib.File object to extract artwork from. Can be passed via pipeline.
+- `-PictureType <TagLib.PictureType[]>`: One or more picture types to filter results. Defaults to `FrontCover`.
+- `-All`: If specified, returns all pictures regardless of type. Overrides `-PictureType`.
+
+**Valid PictureType values:**
+- `Other`, `FileIcon`, `OtherFileIcon`, `FrontCover`, `BackCover`, `LeafletPage`, `Media`, `LeadArtist`
+- `Artist`, `Conductor`, `Band`, `Composer`, `Lyricist`, `RecordingLocation`, `DuringRecording`
+- `DuringPerformance`, `MovieScreenCapture`, `ColouredFish`, `Illustration`, `BandLogo`, `PublisherLogo`
+
+**Example (get front cover - default):**
+
+```powershell
+
+Get-TrackArtwork -FilePath "C:\Music\song.mp3"
+```
+
+**Example (get specific picture type):**
+
+```powershell
+Get-TrackArtwork -FilePath "C:\Music\song.mp3" -PictureType BackCover
+```
+
+**Example (get multiple picture types):**
+
+```powershell
+Get-TrackArtwork -FilePath "C:\Music\song.mp3" -PictureType FrontCover,BackCover
+```
+
+**Example (get all pictures):**
+
+```powershell
+Get-TrackArtwork -FilePath "C:\Music\song.mp3" -All
+```
+
+**Example (using pipeline):**
+
+```powershell
+$tf = [TagLib.File]::Create("C:\Music\song.mp3")
+$tf | Get-TrackArtwork -PictureType FrontCover
+```
+
+**Outputs:**  
+`TagLib.IPicture` or `TagLib.IPicture[]`
+
+---
+### Export-TrackArtwork
+
+**Description:**  
+
+Exports embedded artwork (pictures) from an audio track to the filesystem. The filename is constructed from an optional prefix, the picture type, and the appropriate file extension based on the MIME type. If no output directory is specified, images are saved to the same directory as the source file.
+
+**Parameters:**
+
+- `-FilePath <string>`: Path to the media file containing the artwork.
+- `-TagLibFile <TagLib.File>`: A TagLib.File object to extract artwork from. Can be passed via pipeline.
+- `-Picture <TagLib.IPicture>`: A TagLib.IPicture object to export. Can be passed via pipeline.
+- `-SourceFilePath <string>`: (Optional) The path to the source media file. Used to determine the output directory when a Picture is piped in.
+- `-OutputDirectory <string>`: (Optional) The directory to save the exported image(s). Defaults to the same directory as the media file.
+- `-Prefix <string>`: (Optional) A string to prepend to the filename (e.g., "AlbumName_").
+- `-PictureType <TagLib.PictureType[]>`: (Optional) One or more picture types to filter which pictures to export. Defaults to `FrontCover`.
+- `-All`: (Optional) If specified, exports all pictures regardless of type. Overrides `-PictureType`.
+
+**Valid PictureType values:**
+
+- `Other`, `FileIcon`, `OtherFileIcon`, `FrontCover`, `BackCover`, `LeafletPage`, `Media`, `LeadArtist`
+- `Artist`, `Conductor`, `Band`, `Composer`, `Lyricist`, `RecordingLocation`, `DuringRecording`
+- `DuringPerformance`, `MovieScreenCapture`, `ColouredFish`, `Illustration`, `BandLogo`, `PublisherLogo`
+
+**Example (export front cover - default):**
+
+```powershell
+Export-TrackArtwork -FilePath "C:\Music\song.mp3"
+```
+
+**Example (export with prefix and output directory):**
+
+```powershell
+Export-TrackArtwork -FilePath "C:\Music\song.mp3" -Prefix "MyAlbum_" -OutputDirectory "C:\Covers"
+```
+
+**Example (export specific picture types):**
+
+```powershell
+Export-TrackArtwork -FilePath "C:\Music\song.mp3" -PictureType FrontCover,BackCover
+```
+
+**Example (export all pictures):**
+
+```powershell
+Export-TrackArtwork -FilePath "C:\Music\song.mp3" -All
+```
+
+**Example (using TagLib.File from pipeline):**
+
+```powershell
+$tf = [TagLib.File]::Create("C:\Music\song.mp3")
+$tf | Export-TrackArtwork -Prefix "Export_"
+```
+
+**Example (piping from Get-TrackArtwork with output directory):**
+
+```powershell
+Get-TrackArtwork -FilePath "C:\Music\song.mp3" -All | Export-TrackArtwork -OutputDirectory "C:\Covers" -Prefix "Cover_"
+```
+
+**Example (piping from Get-TrackArtwork with source file path):**
+
+```powershell
+Get-TrackArtwork -FilePath "C:\Music\song.mp3" -All | Export-TrackArtwork -SourceFilePath "C:\Music\song.mp3" -Prefix "Cover_"
+```
+
+**Outputs:**  
+`System.IO.FileInfo[]` - Information about the exported file(s).
+
+> **Note:**  
+> When piping a `[TagLib.IPicture]` object into this function, the output will be written to the **current directory** unless `-OutputDirectory` or `-SourceFilePath` is specified. To export to the same directory as the source file, use the `-SourceFilePath` parameter or specify `-OutputDirectory` explicitly.
 
 ---
 
