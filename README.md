@@ -70,7 +70,6 @@ If both are provided, individual parameters take precedence.
 - `-ISRC <string>`: The ISRC code.
 - `-Subtitle <string>`: The subtitle or mix/version.
 
-
 **Example (using individual parameters):**
 ```powershell
 Set-TrackMetadata -FilePath "C:\Music\song.mp3" -Title "New Title" -Artist "New Artist" -Album "New Album" -Year 2026
@@ -82,10 +81,15 @@ Set-TrackMetadata -FilePath "C:\Music\song.mp3" -Metadata @{Title="New Title"; A
 ```
 
 **Example (combining both):**
+
 ```powershell
 Set-TrackMetadata -FilePath "C:\Music\song.mp3" -Metadata @{Title="Old Title"; Artist="Old Artist"} -Title "New Title"
 ```
+
+To obtain a skeleton that contains the available writable values that can be used to supply the ```Set-TrackMetadata -Metadata```  with a suitable hashtable, use ```Get-TagWritablePropertiesTemplate``` . Be aware that not all tag types are accepted by all types of media, for example you cannot embed artwork in WAV files.
+
 **Example (using standard and custom tags):**
+
 ```powershell
 Set-TrackMetadata -FilePath "C:\Music\song.mp3" `
     -Title "My Song" `
@@ -97,7 +101,6 @@ Set-TrackMetadata -FilePath "C:\Music\song.mp3" `
         'MY_CUSTOM_TAG'  = 'Any value you want'
     }
 ```
-
 
 ---
 

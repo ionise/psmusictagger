@@ -20,6 +20,9 @@
         'Set-Id3CustomText'
         'Remove-Id3CustomText'
         'Remove-CustomTag'
+        'Get-TagWritablePropertiesTemplate'
+        'Get-TrackArtwork'
+        'Export-TrackArtwork'
     )
     
     CmdletsToExport   = @()
