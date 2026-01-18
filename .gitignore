@@ -1,4 +1,4 @@
-README.md
+# Ignore PowerShell script for testing locally
 scratch.ps1
 # Ignore all image files
 *.jpg
