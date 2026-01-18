@@ -84,9 +84,13 @@ function Get-TrackMetadata {
         if ($Parallel) {
             $allPaths | ForEach-Object -Parallel {
                 # Re-import the module in each parallel session
-                Import-Module ./psmusictagger -Force
+                if ($using:ModulePath) {
+                    Import-Module $using:ModulePath -Force
+                } else {
+                    Import-Module psmusictagger -Force
+                }
                 Read-TrackMetadataSingle -FilePath $_ #-TagLibPath  $using:TagLibPath
-            } -ThrottleLimit $ThrottleLimit
+            } -ThrottleLimit $ThrottleLimit 
         } else {
             $allPaths | ForEach-Object {
                 Read-TrackMetadataSingle -FilePath $_ #-TagLibPath $TagLibPath
