@@ -1,7 +1,7 @@
 # psmusictagger
-A PowerShell Wrapper for reading metadata from audio tracks using [TagLibSharp Version 2.3.0]
+A PowerShell Wrapper for reading metadata from audio tracks using [TagLibSharp Version 2.3.0](https://github.com/mono/taglib-sharp/releases/tag/TagLibSharp-2.3.0)
 
-# Information about this module
+## Information about this module
 
 This module was written from scratch in a long weekend to fulfil some music tagging operations I was performing on a large number of tracks. It is based on some earlier scripts I created which leveraged external ffmpeg executable installed on the computer but I wanted to make a module that was stand alone without requiring any external depdendancies to be installed.
 
@@ -36,12 +36,15 @@ Get-TrackMetadata -FilePath "C:\Music\MyTune.mp3"
 ### Read-TrackMetadataSingle
 
 **Description:**  
+
 Reads and returns all available metadata from a single audio file as a PowerShell object. This is usually called by Get-TrackMetadata but you can also use it directly.
 
 **Parameters:**
+
 - `-FilePath <string>`: Path to the audio file.
 
 **Example:**
+
 ```powershell
 Read-TrackMetadataSingle -FilePath "C:\Music\song.mp3"
 ```
@@ -56,6 +59,7 @@ You can specify commonly used tags as individual parameters (e.g., -Title, -Arti
 If both are provided, individual parameters take precedence.
 
 **Parameters:**
+
 - `-FilePath <string>`: Path to the audio file.
 - `-Metadata <hashtable>`: Standard metadata fields to update (e.g., Title, Artist, Album).
 - `-CustomFields <hashtable>`: Custom fields (TXXX frames) to add or update.
@@ -76,11 +80,13 @@ If both are provided, individual parameters take precedence.
 - `-Subtitle <string>`: The subtitle or mix/version.
 
 **Example (using individual parameters):**
+
 ```powershell
 Set-TrackMetadata -FilePath "C:\Music\song.mp3" -Title "New Title" -Artist "New Artist" -Album "New Album" -Year 2026
 ```
 
 **Example (using hashtable):**
+
 ```powershell
 Set-TrackMetadata -FilePath "C:\Music\song.mp3" -Metadata @{Title="New Title"; Artist="New Artist"}
 ```
@@ -115,11 +121,13 @@ Set-TrackMetadata -FilePath "C:\Music\song.mp3" `
 Adds or updates a custom user-defined text field (TXXX frame) in the ID3v2 tag of an audio file.
 
 **Parameters:**
+
 - `-Id3 <TagLib.Id3v2.Tag>`: The ID3v2 tag object.
 - `-Description <string>`: The custom field name.
 - `-Text <string>`: The value to store.
 
 **Example:**
+
 ```powershell
 $tf = [TagLib.File]::Create("C:\Music\song.mp3")
 $id3 = $tf.GetTag([TagLib.TagTypes]::Id3v2, $true)
@@ -133,13 +141,16 @@ $tf.Dispose()
 ### Remove-CustomTag
 
 **Description:**  
+
 Removes a custom user-defined text field (TXXX frame) from the ID3v2 tag of an audio file.
 
 **Parameters:**
+
 - `-FilePath <string>`: Path to the audio file.
 - `-Description <string>`: The custom field name to remove.
 
 **Example:**
+
 ```powershell
 Remove-CustomTag -FilePath "C:\Music\song.mp3" -Description "MYTAG"
 ```
@@ -151,12 +162,14 @@ Remove-CustomTag -FilePath "C:\Music\song.mp3" -Description "MYTAG"
 Extracts embedded artwork (pictures) from an audio track. Returns pictures matching the specified type(s), or all pictures if `-All` is specified. Accepts either a file path or a `TagLib.File` object from the pipeline.
 
 **Parameters:**
+
 - `-FilePath <string>`: Path to the audio file.
 - `-TagLibFile <TagLib.File>`: A TagLib.File object to extract artwork from. Can be passed via pipeline.
 - `-PictureType <TagLib.PictureType[]>`: One or more picture types to filter results. Defaults to `FrontCover`.
 - `-All`: If specified, returns all pictures regardless of type. Overrides `-PictureType`.
 
 **Valid PictureType values:**
+
 - `Other`, `FileIcon`, `OtherFileIcon`, `FrontCover`, `BackCover`, `LeafletPage`, `Media`, `LeadArtist`
 - `Artist`, `Conductor`, `Band`, `Composer`, `Lyricist`, `RecordingLocation`, `DuringRecording`
 - `DuringPerformance`, `MovieScreenCapture`, `ColouredFish`, `Illustration`, `BandLogo`, `PublisherLogo`
@@ -197,6 +210,7 @@ $tf | Get-TrackArtwork -PictureType FrontCover
 `TagLib.IPicture` or `TagLib.IPicture[]`
 
 ---
+
 ### Export-TrackArtwork
 
 **Description:**  
@@ -277,6 +291,23 @@ Get-TrackArtwork -FilePath "C:\Music\song.mp3" -All | Export-TrackArtwork -Sourc
 
 ---
 
+## AI Assistance Disclosure
+
+Parts of this project were created with assistance from AI coding tools, including GitHub Copilot in Visual Studio Code.  
+AI suggestions were used to help draft code, documentation, and implementation patterns. All AI-assisted output has been:
+
+- Reviewed and validated manually  
+- Modified to fit the project’s conventions and requirements  
+- Tested to ensure correctness and security  
+
+AI tools were used as accelerators, not as autonomous code authors.  
+The maintainers take full responsibility for all code committed to this repository.
+
+For transparency, this disclosure aligns with industry recommendations encouraging contributors to declare meaningful AI involvement in software development. 
+
+
+---
+
 ## Third-Party Licenses and Attribution
 
 ### TagLibSharp
@@ -297,3 +328,5 @@ See `LICENSES\LGPL-2.1.txt` and `THIRD-PARTY-NOTICES.txt` for full license detai
 ---
 
 ## License
+
+[MIT License](LICENSE)
