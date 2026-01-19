@@ -1,4 +1,7 @@
 # psmusictagger
+
+![psmusictagger logo](assets/psmusictagger_256.png "psmusictagger")
+
 A PowerShell Wrapper for reading metadata from audio tracks using [TagLibSharp Version 2.3.0](https://github.com/mono/taglib-sharp/releases/tag/TagLibSharp-2.3.0)
 
 ## Information about this module

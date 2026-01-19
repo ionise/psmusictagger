@@ -1,5 +1,5 @@
 # psmusictagger.psm1
-# Module version: 1.0.0
+# Module version: 1.0.1
 # Built: 2026-01-19 12:17:25
 
 # Load TagLib# assembly

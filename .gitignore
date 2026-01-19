@@ -8,7 +8,7 @@ scratch.ps1
 *.tiff
 *.webp
 # Allow specific assets
-!assets/psmusictagger.png
+!assets/psmusictagger*.png
 #Ignore media files
 # Lossless audio
 *.flac

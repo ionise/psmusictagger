@@ -5,7 +5,7 @@
 function Get-Id3Text {
     [CmdletBinding()]
     param([TagLib.Id3v2.Tag]$Id3, [string]$FrameId)
-    Write-Verbose "Get-Id3Text called with FrameId: $FrameId" -Verbose
+    Write-Verbose "Get-Id3Text called with FrameId: $FrameId"
     if (-not $Id3) { 
         Write-Verbose "No ID3v2 tag present"
         return $null 
