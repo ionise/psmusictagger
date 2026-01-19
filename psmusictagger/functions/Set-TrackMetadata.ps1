@@ -61,6 +61,24 @@
 .PARAMETER Subtitle
     The subtitle or mix/version.
 
+.PARAMETER Artwork
+    One or more TagLib.IPicture objects to embed as artwork. These can be created using Import-TrackArtwork.
+
+.PARAMETER FrontCoverPath
+    Path to an image file to use as the front cover artwork.
+
+.PARAMETER BackCoverPath
+    Path to an image file to use as the back cover artwork.
+
+.PARAMETER LeafletPagePath
+    Path to an image file to use as a leaflet page.
+
+.PARAMETER BandLogoPath
+    Path to an image file to use as the band logo.
+
+.PARAMETER PublisherLogoPath
+    Path to an image file to use as the publisher logo.
+
 .EXAMPLE
     Set-TrackMetadata -FilePath 'C:\Music\Track.mp3' -Title 'New Title' -Artist 'New Artist' -Album 'New Album' -Year 2026
 
@@ -109,7 +127,13 @@ function Set-TrackMetadata {
         [string]$Year,
         [string]$Comments,
         [string]$ISRC,
-        [string]$Subtitle
+        [string]$Subtitle,
+        [TagLib.IPicture[]]$Artwork,
+        [string]$FrontCoverPath,
+        [string]$BackCoverPath,
+        [string]$LeafletPagePath,
+        [string]$BandLogoPath,
+        [string]$PublisherLogoPath
     )
 
     # Merge individual parameters into Metadata hashtable if provided
@@ -183,6 +207,65 @@ function Set-TrackMetadata {
             $CustomFields.GetEnumerator() | ForEach-Object {
                 Set-Id3CustomText -Id3 $id3 -Description $_.Key -Text $_.Value
             }
+        }
+
+        # Handle artwork
+        $newPictures = [System.Collections.Generic.List[TagLib.IPicture]]::new()
+
+        # Add any existing artwork passed directly
+        if ($Artwork) {
+            Write-Verbose "Adding $($Artwork.Count) artwork picture(s) from Artwork parameter"
+            $newPictures.AddRange($Artwork)
+        }
+
+        # Import artwork from file paths for specific picture types
+        if ($FrontCoverPath) {
+            Write-Verbose "Importing front cover from $FrontCoverPath"
+            $newPictures.Add((Import-TrackArtwork -FilePath $FrontCoverPath -PictureType FrontCover))
+        }
+        if ($BackCoverPath) {
+            Write-Verbose "Importing back cover from $BackCoverPath"
+            $newPictures.Add((Import-TrackArtwork -FilePath $BackCoverPath -PictureType BackCover))
+        }
+        if ($LeafletPagePath) {
+            Write-Verbose "Importing leaflet page from $LeafletPagePath"
+            $newPictures.Add((Import-TrackArtwork -FilePath $LeafletPagePath -PictureType LeafletPage))
+        }
+        if ($BandLogoPath) {
+            Write-Verbose "Importing band logo from $BandLogoPath"
+            $newPictures.Add((Import-TrackArtwork -FilePath $BandLogoPath -PictureType BandLogo))
+        }
+        if ($PublisherLogoPath) {
+            Write-Verbose "Importing publisher logo from $PublisherLogoPath"
+            $newPictures.Add((Import-TrackArtwork -FilePath $PublisherLogoPath -PictureType PublisherLogo))
+        }
+
+        # Apply artwork if any were provided, preserving existing artwork of different types
+        if ($newPictures.Count -gt 0) {
+            # Get the picture types we're adding/replacing
+            $newPictureTypes = $newPictures | ForEach-Object { $_.Type }
+            
+            # Keep existing pictures that are NOT of the same type as new pictures
+            $existingPictures = $tag.Pictures
+            $preservedPictures = @()
+            if ($existingPictures -and $existingPictures.Count -gt 0) {
+                $preservedPictures = @($existingPictures | Where-Object { $newPictureTypes -notcontains $_.Type })
+                if ($preservedPictures.Count -gt 0) {
+                    Write-Verbose "Preserving $($preservedPictures.Count) existing picture(s) of other types"
+                }
+            }
+            
+            # Combine preserved existing pictures with new pictures
+            $finalPictures = [System.Collections.Generic.List[TagLib.IPicture]]::new()
+            foreach ($preserved in $preservedPictures) {
+                $finalPictures.Add($preserved)
+            }
+            foreach ($newPic in $newPictures) {
+                $finalPictures.Add($newPic)
+            }
+            
+            Write-Verbose "Setting $($finalPictures.Count) picture(s) on track ($($newPictures.Count) new, $($preservedPictures.Count) preserved)"
+            $tag.Pictures = $finalPictures.ToArray()
         }
         
         Write-Verbose "Saving metadata to $FilePath"

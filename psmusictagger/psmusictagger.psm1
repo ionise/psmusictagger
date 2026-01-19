@@ -1,6 +1,6 @@
 # psmusictagger.psm1
-# Module version: 0.2.0
-# Built: 2026-01-18 21:22:42
+# Module version: 1.0.0
+# Built: 2026-01-19 12:17:25
 
 # Load TagLib# assembly
 $assemblyPath = Join-Path $PSScriptRoot 'lib/TagLibSharp.dll'
@@ -18,7 +18,9 @@ Export-ModuleMember -Function @(
     'Get-TagWritablePropertiesTemplate',
     'Get-TrackArtwork',
     'Get-TrackMetadata',
+    'Import-TrackArtwork',
     'Remove-CustomTag',
+    'Remove-TrackArtwork',
     'Set-TrackMetadata',
     'Set-Id3CustomText',
     'Remove-Id3CustomText'

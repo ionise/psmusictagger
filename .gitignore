@@ -7,3 +7,31 @@ scratch.ps1
 *.bmp
 *.tiff
 *.webp
+# Allow specific assets
+!assets/psmusictagger.png
+#Ignore media files
+# Lossless audio
+*.flac
+*.wav
+*.aiff
+*.aif
+*.alac
+*.ape
+*.wv
+
+# Lossy audio
+*.mp3
+*.m4a
+*.aac
+*.ogg
+*.opus
+*.wma
+
+# Other formats
+*.m4b
+*.m4p
+*.m4r
+*.mpc
+*.dsf
+*.dff
+.DS_Store

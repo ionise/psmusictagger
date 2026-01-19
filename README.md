@@ -78,6 +78,12 @@ If both are provided, individual parameters take precedence.
 - `-Comments <string>`: Comments for the track.
 - `-ISRC <string>`: The ISRC code.
 - `-Subtitle <string>`: The subtitle or mix/version.
+- `-Artwork <TagLib.IPicture[]>`: One or more TagLib.IPicture objects to embed as artwork. Can be created using `Import-TrackArtwork`.
+- `-FrontCoverPath <string>`: Path to an image file to use as the front cover artwork.
+- `-BackCoverPath <string>`: Path to an image file to use as the back cover artwork.
+- `-LeafletPagePath <string>`: Path to an image file to use as a leaflet page.
+- `-BandLogoPath <string>`: Path to an image file to use as the band logo.
+- `-PublisherLogoPath <string>`: Path to an image file to use as the publisher logo.
 
 **Example (using individual parameters):**
 
@@ -112,6 +118,28 @@ Set-TrackMetadata -FilePath "C:\Music\song.mp3" `
         'MY_CUSTOM_TAG'  = 'Any value you want'
     }
 ```
+
+**Example (adding artwork from file path):**
+
+```powershell
+Set-TrackMetadata -FilePath "C:\Music\song.mp3" -FrontCoverPath "C:\Covers\album.jpg"
+```
+
+**Example (adding multiple artwork types):**
+
+```powershell
+Set-TrackMetadata -FilePath "C:\Music\song.mp3" -FrontCoverPath "C:\Covers\front.jpg" -BackCoverPath "C:\Covers\back.jpg" -BandLogoPath "C:\Covers\logo.png"
+```
+
+**Example (using Import-TrackArtwork with Artwork parameter):**
+
+```powershell
+$picture = Import-TrackArtwork -FilePath "C:\Covers\album.jpg" -PictureType FrontCover
+Set-TrackMetadata -FilePath "C:\Music\song.mp3" -Artwork $picture
+```
+
+> **Note:**  
+> When adding artwork, existing pictures of the same type are replaced, while pictures of different types are preserved.
 
 ---
 
@@ -155,6 +183,115 @@ Removes a custom user-defined text field (TXXX frame) from the ID3v2 tag of an a
 Remove-CustomTag -FilePath "C:\Music\song.mp3" -Description "MYTAG"
 ```
 
+---
+
+### Import-TrackArtwork
+
+**Description:**  
+Imports an image file from the filesystem and returns a `TagLib.IPicture` object that can be embedded into audio file metadata. The MIME type is automatically determined from the file extension.
+
+**Parameters:**
+
+- `-FilePath <string>`: Path to the image file to import. Supports pipeline input.
+- `-PictureType <TagLib.PictureType>`: The type of picture (e.g., `FrontCover`, `BackCover`). Defaults to `FrontCover`.
+- `-Description <string>`: (Optional) A description for the picture.
+
+**Valid PictureType values:**
+
+- `Other`, `FileIcon`, `OtherFileIcon`, `FrontCover`, `BackCover`, `LeafletPage`, `Media`, `LeadArtist`
+- `Artist`, `Conductor`, `Band`, `Composer`, `Lyricist`, `RecordingLocation`, `DuringRecording`
+- `DuringPerformance`, `MovieScreenCapture`, `ColouredFish`, `Illustration`, `BandLogo`, `PublisherLogo`
+
+**Supported image formats:**
+
+- JPEG (`.jpg`, `.jpeg`)
+- PNG (`.png`)
+- GIF (`.gif`)
+- BMP (`.bmp`)
+- TIFF (`.tiff`, `.tif`)
+- WebP (`.webp`)
+
+**Example (import as front cover - default):**
+
+```powershell
+$picture = Import-TrackArtwork -FilePath "C:\Covers\album.jpg"
+```
+
+**Example (import as back cover):**
+
+```powershell
+$picture = Import-TrackArtwork -FilePath "C:\Covers\back.png" -PictureType BackCover
+```
+
+**Example (import with description):**
+
+```powershell
+$picture = Import-TrackArtwork -FilePath "C:\Covers\album.jpg" -PictureType FrontCover -Description "Album artwork"
+```
+
+**Example (full workflow - import and embed):**
+
+```powershell
+$picture = Import-TrackArtwork -FilePath "C:\Covers\cover.jpg"
+$track = [TagLib.File]::Create("C:\Music\song.mp3")
+$track.Tag.Pictures = @($picture)
+$track.Save()
+$track.Dispose()
+```
+
+**Outputs:**  
+`TagLib.IPicture`
+
+---
+
+### Remove-TrackArtwork
+
+**Description:**  
+Removes embedded artwork (pictures) of specified types from an audio track file. By default, removes the front cover. If the specified picture type does not exist in the file, it is silently ignored.
+
+**Parameters:**
+
+- `-FilePath <string[]>`: Path to one or more media files to remove artwork from. Supports pipeline input.
+- `-PictureType <TagLib.PictureType[]>`: One or more picture types to remove. Defaults to `FrontCover`.
+- `-All`: If specified, removes all pictures regardless of type. Overrides `-PictureType`.
+
+**Valid PictureType values:**
+
+- `Other`, `FileIcon`, `OtherFileIcon`, `FrontCover`, `BackCover`, `LeafletPage`, `Media`, `LeadArtist`
+- `Artist`, `Conductor`, `Band`, `Composer`, `Lyricist`, `RecordingLocation`, `DuringRecording`
+- `DuringPerformance`, `MovieScreenCapture`, `ColouredFish`, `Illustration`, `BandLogo`, `PublisherLogo`
+
+**Example (remove front cover - default):**
+
+```powershell
+Remove-TrackArtwork -FilePath "C:\Music\song.mp3"
+```
+
+**Example (remove back cover):**
+
+```powershell
+Remove-TrackArtwork -FilePath "C:\Music\song.mp3" -PictureType BackCover
+```
+
+**Example (remove multiple picture types):**
+
+```powershell
+Remove-TrackArtwork -FilePath "C:\Music\song.mp3" -PictureType FrontCover,BackCover,BandLogo
+```
+
+**Example (remove all artwork):**
+
+```powershell
+Remove-TrackArtwork -FilePath "C:\Music\song.mp3" -All
+```
+
+**Example (pipeline from Get-ChildItem):**
+
+```powershell
+Get-ChildItem "C:\Music\*.mp3" | Remove-TrackArtwork -PictureType BackCover
+```
+
+---
 
 ### Get-TrackArtwork
 
