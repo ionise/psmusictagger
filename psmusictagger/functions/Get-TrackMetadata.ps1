@@ -68,7 +68,7 @@ function Get-TrackMetadata {
                 if (-not (Test-Path -LiteralPath $SourcePath)) {
                     throw "SourcePath not found: $SourcePath"
                 }
-                Get-ChildItem -LiteralPath $SourcePath -Recurse -File -Filter $Filter |
+                Get-ChildItem -LiteralPath $SourcePath -Recurse -File -Filter $Filter -FollowSymlink:$false -ErrorAction SilentlyContinue |
                     ForEach-Object {
                         $resolved = Resolve-AudioPath -InputObject $_
                         if ($resolved) { [void]$allPaths.Add($resolved) }
