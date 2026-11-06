@@ -25,6 +25,9 @@
     A hashtable of custom text fields to set as ID3v2 TXXX frames. Keys are field names
     (descriptions), and values are the text to store.
 
+.PARAMETER RemoveCustomFields
+    One or more ID3v2 TXXX field names to remove before CustomFields are written.
+
 .PARAMETER Title
     The title of the track.
 
@@ -61,6 +64,12 @@
 .PARAMETER Subtitle
     The subtitle or mix/version.
 
+.PARAMETER Media
+    The media format stored in the standard ID3v2 TMED frame.
+
+.PARAMETER ReleaseDate
+    The release date stored in the standard ID3v2 TDRL frame.
+
 .PARAMETER Artwork
     One or more TagLib.IPicture objects to embed as artwork. These can be created using Import-TrackArtwork.
 
@@ -92,7 +101,7 @@
 
 .EXAMPLE
     Set-TrackMetadata -FilePath 'C:\Music\Track.mp3' -CustomFields @{
-        'CATALOG_NUMBER' = '12345-XYZ'
+        'catalognumber' = '12345-XYZ'
         'BARCODE'        = '0123456789012'
     } -Verbose
 
@@ -116,6 +125,7 @@ function Set-TrackMetadata {
         [Parameter(Mandatory)][string]$FilePath,
         [hashtable]$Metadata = @{},
         [hashtable]$CustomFields = @{},
+        [string[]]$RemoveCustomFields = @(),
         [string]$Title,
         [string]$Artist,
         [string]$Album,
@@ -128,6 +138,8 @@ function Set-TrackMetadata {
         [string]$Comments,
         [string]$ISRC,
         [string]$Subtitle,
+        [string]$Media,
+        [string]$ReleaseDate,
         [TagLib.IPicture[]]$Artwork,
         [string]$FrontCoverPath,
         [string]$BackCoverPath,
@@ -153,6 +165,8 @@ function Set-TrackMetadata {
     if ($Comments)    { $mergedMetadata['Comments']    = $Comments }
     if ($ISRC)        { $mergedMetadata['ISRC']        = $ISRC }
     if ($Subtitle)    { $mergedMetadata['Subtitle']    = $Subtitle }
+    if ($Media)       { $mergedMetadata['Media']       = $Media }
+    if ($ReleaseDate) { $mergedMetadata['ReleaseDate'] = $ReleaseDate }
 
     $tf = $null
     try {
@@ -175,9 +189,12 @@ function Set-TrackMetadata {
                 $tag.Track = [uint]$parts[0]
                 if ($parts.Count -gt 1) { $tag.TrackCount = [uint]$parts[1] }
             }
+            'BPM'             = { param($tag, $value) $tag.BeatsPerMinute = [uint]([math]::Round([double]$value)) }
             'Year'            = { param($tag, $value) $tag.Year = [uint]$value }
             'Comments'        = { param($tag, $value) $tag.Comment = $value }
             'ISRC'            = { param($tag, $value) $tag.ISRC = $value }
+            'Media'           = { param($tag, $value) ([TagLib.Id3v2.TextInformationFrame]::Get($id3, 'TMED', $true)).Text = @($value) }
+            'ReleaseDate'     = { param($tag, $value) ([TagLib.Id3v2.TextInformationFrame]::Get($id3, 'TDRL', $true)).Text = @($value) }
         }
         
         # Update standard properties
@@ -201,6 +218,12 @@ function Set-TrackMetadata {
             }
         }
         
+        if ($RemoveCustomFields.Count -gt 0 -and $id3) {
+            foreach ($description in $RemoveCustomFields) {
+                Remove-Id3CustomText -Id3 $id3 -Description $description
+            }
+        }
+
         # Update custom fields (TXXX frames)
         if ($CustomFields.Count -gt 0 -and $id3) {
             Write-Verbose "Setting custom fields"

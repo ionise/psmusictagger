@@ -47,6 +47,7 @@ function Read-TrackMetadataSingle {
     try {
         $tf = [TagLib.File]::Create($FilePath)
         $tag = $tf.Tag
+        $id3v1 = $tf.GetTag([TagLib.TagTypes]::Id3v1, $false)
         $id3 = $tf.GetTag([TagLib.TagTypes]::Id3v2, $false)
         $xiph  = $tf.GetTag([TagLib.TagTypes]::Xiph,  $false)
         $apple = $tf.GetTag([TagLib.TagTypes]::Apple, $false)
@@ -122,6 +123,7 @@ function Read-TrackMetadataSingle {
             TrackNumber       = "$($tag.Track)/$($tag.TrackCount)"  # TRCK
             Year              = $tag.Year                           # TYER/TDRC
             Comments          = $tag.Comment                        # COMM
+            Id3v1Comment      = if ($id3v1) { $id3v1.Comment } else { $null }
             
             # Additional metadata
             ISRC              = $tag.ISRC                           # TSRC
